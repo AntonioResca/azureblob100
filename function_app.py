@@ -8,23 +8,54 @@ app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 def write_blob(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
 
-    name = req.params.get('name')
-    if not name:
-        try:
-            req_body = req.get_json()
-        except ValueError:
-            pass
-        else:
-            name = req_body.get('name')
+    blob.write_blob_to_storage(req_body)
+    return func.HttpResponse(
+            "Success!",
+            status_code=200
+    )
 
-    if name:
-        blob.write_blob_to_storage(req_body)
-        return func.HttpResponse(f"Hello, {name}. Your name is now written in Azure Storage")
-    else:
-        return func.HttpResponse(
-             "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response.",
-             status_code=200
-        )
+@app.route(route="write_json")
+def write_json(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Python HTTP trigger function processed a request.')
+
+    myData = {
+        "avalancheProblems" : [ {
+        "problemType" : "wind_slab",
+        "elevation" : {
+            "lowerBound" : "treeline"
+        },
+        "validTimePeriod" : "all_day",
+        "snowpackStability" : "poor",
+        "frequency" : "some",
+        "avalancheSize" : 2,
+        "customData" : {
+            "ALBINA" : {
+            "avalancheType" : "slab"
+            }
+        },
+        "aspects" : [ "W", "NE", "SE", "S", "E", "N", "SW", "NW" ]
+        },{
+        "problemType" : "persistent_weak_layers",
+        "elevation" : {
+            "lowerBound" : "2400"
+        },
+        "validTimePeriod" : "all_day",
+        "snowpackStability" : "poor",
+        "frequency" : "few",
+        "avalancheSize" : 2,
+        "customData" : {
+            "ALBINA" : {
+            "avalancheType" : "slab"
+            }
+        },
+        "aspects" : [ "W", "NE", "E", "N", "NW" ]
+        } ]
+    }
+    blob.write_json_to_storage(myData)
+    return func.HttpResponse(
+            "Success!",
+            status_code=200
+    )
 
 @app.route(route="read_blob")
 def read_blob(req: func.HttpRequest) -> func.HttpResponse:

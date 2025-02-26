@@ -1,4 +1,6 @@
 import os
+import json
+import csv
 import logging
 from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
@@ -25,6 +27,36 @@ def write_blob_to_storage(req_body):
         # Upload the content to the blob
         blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
         blob_client.upload_blob(content, overwrite=True)
+
+        logging.info(f"Blob '{blob_name}' uploaded successfully.")
+        return f"Blob '{blob_name}' uploaded successfully."
+
+    except Exception as e:
+        logging.error(f"Error uploading blob: {e}")
+        return str(e)
+
+def write_json_to_storage(mydict):
+    try:
+        # Retrieve connection string from environment variable
+        connection_string = os.environ["AzureWebJobsStorage"]
+        
+        # Initialize BlobServiceClient
+        blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+        
+        # Define container name and blob name
+        container_name = "mycontainer"
+        blob_name = "example.json"
+        
+        # Create container if it doesn't exist
+        container_client = blob_service_client.get_container_client(container_name)
+        if not container_client.exists():
+            container_client.create_container()
+
+        # convert dictionary to json
+        myjson = json.dumps(mydict)
+        # Upload json to blob
+        blob_client = blob_service_client.get_blob_client(container=container_name, blob=blob_name)
+        blob_client.upload_blob(myjson, overwrite=True)
 
         logging.info(f"Blob '{blob_name}' uploaded successfully.")
         return f"Blob '{blob_name}' uploaded successfully."
