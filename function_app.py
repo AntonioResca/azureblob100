@@ -7,6 +7,13 @@ import io
 
 app = func.FunctionApp(http_auth_level=func.AuthLevel.FUNCTION)
 
+@app.route(route="test_me")
+def test_me(req: func.HttpRequest) -> func.HttpResponse:
+    logging.info('Python HTTP trigger function processed a request.')
+    return func.HttpResponse(
+            "Success!",
+            status_code=200
+    )
 @app.route(route="write_blob")
 def write_blob(req: func.HttpRequest) -> func.HttpResponse:
     logging.info('Python HTTP trigger function processed a request.')
